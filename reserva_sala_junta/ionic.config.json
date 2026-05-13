@@ -1,0 +1,7 @@
+{
+  "name": "reserva_sala_junta",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
