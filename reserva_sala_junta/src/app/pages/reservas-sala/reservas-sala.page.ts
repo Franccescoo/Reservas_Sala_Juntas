@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, DateSelectArg, EventClickArg } from '@fullcalendar/core';
@@ -54,6 +55,8 @@ export class ReservasSalaPage implements OnInit, OnDestroy {
   guardando = false;
   cargando = true;
   mensajeConexion = '';
+  sincronizando = false;
+  ultimaActualizacion: Date | null = null;
 
   readonly reservaForm = this.fb.nonNullable.group(
     {
@@ -109,7 +112,7 @@ export class ReservasSalaPage implements OnInit, OnDestroy {
     slotMaxTime: '18:00:00',
   };
 
-  private dejarDeEscucharCambios?: () => void;
+  private realtimeChannel: RealtimeChannel | null = null;
 
   constructor() {
     addIcons({ calendarOutline });
@@ -119,8 +122,8 @@ export class ReservasSalaPage implements OnInit, OnDestroy {
     await this.cargarReservas();
 
     try {
-      this.dejarDeEscucharCambios = this.reservasService.escucharCambiosReservas(() => {
-        void this.cargarReservas(false);
+      this.realtimeChannel = this.reservasService.escucharCambiosReservas(() => {
+        void this.onCambioReservasRealtime();
       });
     } catch (error) {
       this.manejarError(error, false);
@@ -128,7 +131,8 @@ export class ReservasSalaPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.dejarDeEscucharCambios?.();
+    this.realtimeChannel?.unsubscribe();
+    this.realtimeChannel = null;
   }
 
   enfocarFormulario(limpiar = false): void {
@@ -368,15 +372,30 @@ export class ReservasSalaPage implements OnInit, OnDestroy {
     return `${String(fecha.getHours()).padStart(2, '0')}:${String(fecha.getMinutes()).padStart(2, '0')}`;
   }
 
-  private async mostrarToast(mensaje: string, color: 'success' | 'warning' | 'danger'): Promise<void> {
+  private async mostrarToast(
+    mensaje: string,
+    color: 'success' | 'warning' | 'danger' = 'success',
+  ): Promise<void> {
     const toast = await this.toastController.create({
       message: mensaje,
       color,
-      duration: 2800,
+      duration: color === 'success' ? 2000 : 2800,
       position: 'top',
     });
 
     await toast.present();
+  }
+
+  private async onCambioReservasRealtime(): Promise<void> {
+    this.sincronizando = true;
+
+    try {
+      await this.cargarReservas(false);
+      this.ultimaActualizacion = new Date();
+      await this.mostrarToast('Calendario actualizado en tiempo real');
+    } finally {
+      this.sincronizando = false;
+    }
   }
 
   private manejarError(error: unknown, mostrarToast = true): void {

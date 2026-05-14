@@ -50,6 +50,19 @@
             }
           </div>
 
+          <div class="sync-status" aria-live="polite">
+            <span class="sync-dot" [class.syncing]="sincronizando"></span>
+            @if (sincronizando) {
+              <span>Sincronizando calendario...</span>
+            }
+            @if (!sincronizando && ultimaActualizacion) {
+              <span>Actualizado {{ ultimaActualizacion | date: 'HH:mm:ss' }}</span>
+            }
+            @if (!sincronizando && !ultimaActualizacion) {
+              <span>Sincronización en tiempo real activa</span>
+            }
+          </div>
+
           <div class="calendar-wrap">
             <full-calendar [options]="calendarOptions"></full-calendar>
           </div>

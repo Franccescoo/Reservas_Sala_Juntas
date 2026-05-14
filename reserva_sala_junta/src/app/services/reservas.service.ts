@@ -59,6 +59,10 @@ export class ReservasService {
       .single();
 
     if (error) {
+      if (error.code === '23P01') {
+        throw new Error('Ese horario ya fue reservado por otra persona.');
+      }
+
       throw error;
     }
 
@@ -99,7 +103,7 @@ export class ReservasService {
     return Boolean(data?.length);
   }
 
-  escucharCambiosReservas(callback: () => void): () => void {
+  escucharCambiosReservas(callback: () => void): RealtimeChannel {
     this.realtimeChannel?.unsubscribe();
 
     this.realtimeChannel = this.client
@@ -111,14 +115,13 @@ export class ReservasService {
           schema: 'public',
           table: 'reservas',
         },
-        () => callback(),
+        () => {
+          callback();
+        },
       )
       .subscribe();
 
-    return () => {
-      this.realtimeChannel?.unsubscribe();
-      this.realtimeChannel = null;
-    };
+    return this.realtimeChannel;
   }
 
   private get client(): SupabaseClient {
