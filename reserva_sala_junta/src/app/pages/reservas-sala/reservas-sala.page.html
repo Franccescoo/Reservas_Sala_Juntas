@@ -1,0 +1,148 @@
+<ion-content fullscreen="true" class="reservas-shell">
+  <main class="dashboard-page">
+    <section class="dashboard-shell">
+      <header class="dashboard-topbar">
+        <div class="brand">
+          <div class="brand-icon">
+            <ion-icon name="calendar-outline" aria-hidden="true"></ion-icon>
+          </div>
+          <span>Reservas Sala de Juntas</span>
+        </div>
+
+        <ion-button class="new-reservation-button" (click)="enfocarFormulario(true)">+ Nueva reserva</ion-button>
+      </header>
+
+      <section class="metrics-grid" aria-label="Resumen de reservas">
+        <article class="metric-card">
+          <span>Reservas activas</span>
+          <strong>{{ reservas.length }}</strong>
+          <small>Agenda vigente</small>
+        </article>
+
+        <article class="metric-card">
+          <span>Hoy</span>
+          <strong>{{ reservasHoy }}</strong>
+          <small>Reservas para esta jornada</small>
+        </article>
+
+        <article class="metric-card">
+          <span>Proxima reserva</span>
+          <strong>{{ proximaReserva ? horaCorta(proximaReserva.fecha_inicio) : '--:--' }}</strong>
+          <small>{{ proximaReserva ? proximaReserva.nombre + ' - ' + proximaReserva.departamento : 'Sin reservas pendientes' }}</small>
+        </article>
+      </section>
+
+      @if (mensajeConexion) {
+        <section class="status-banner">
+          {{ mensajeConexion }}
+        </section>
+      }
+
+      <section class="main-grid">
+        <article class="dashboard-card calendar-card">
+          <div class="card-heading compact-heading">
+            <div>
+              <span>Calendario de reservas</span>
+              <h2>Disponibilidad semanal</h2>
+            </div>
+            @if (cargando) {
+              <p>Cargando...</p>
+            }
+          </div>
+
+          <div class="calendar-wrap">
+            <full-calendar [options]="calendarOptions"></full-calendar>
+          </div>
+        </article>
+
+        <aside class="side-panel">
+          <article class="dashboard-card form-card" #formularioReserva>
+            <div class="card-heading">
+              <div>
+                <span>Nueva reserva</span>
+                <h2>Agendar sala</h2>
+              </div>
+            </div>
+
+            <form class="reservation-form" [formGroup]="reservaForm" (ngSubmit)="guardarReserva()">
+              <ion-item>
+                <ion-label position="stacked">Nombre *</ion-label>
+                <ion-input formControlName="nombre" autocomplete="name" placeholder="Camila Rojas"></ion-input>
+              </ion-item>
+
+              <ion-item>
+                <ion-label position="stacked">Departamento *</ion-label>
+                <ion-input formControlName="departamento" placeholder="Finanzas"></ion-input>
+              </ion-item>
+
+              <ion-item>
+                <ion-label position="stacked">Motivo</ion-label>
+                <ion-textarea formControlName="motivo" autoGrow="false" rows="2" placeholder="Revision trimestral"></ion-textarea>
+              </ion-item>
+
+              <div class="date-time-grid">
+                <ion-item class="span-2">
+                  <ion-label position="stacked">Fecha *</ion-label>
+                  <ion-input formControlName="fecha" type="date"></ion-input>
+                </ion-item>
+
+                <ion-item>
+                  <ion-label position="stacked">Hora inicio *</ion-label>
+                  <ion-input formControlName="horaInicio" type="time"></ion-input>
+                </ion-item>
+
+                <ion-item>
+                  <ion-label position="stacked">Hora fin *</ion-label>
+                  <ion-input formControlName="horaFin" type="time"></ion-input>
+                </ion-item>
+              </div>
+
+              @if (reservaForm.hasError('horaFinInvalida') && reservaForm.touched) {
+                <p class="form-error">La hora fin debe ser mayor a la hora inicio.</p>
+              }
+
+              <div class="form-actions">
+                <ion-button type="button" fill="clear" (click)="limpiarFormulario()">Limpiar</ion-button>
+                <ion-button type="submit" class="primary-action" [disabled]="guardando">
+                  {{ guardando ? 'Guardando...' : 'Guardar reserva' }}
+                </ion-button>
+              </div>
+            </form>
+          </article>
+
+          <article class="dashboard-card upcoming-card">
+            <div class="card-heading">
+              <div>
+                <span>Proximas reservas</span>
+                <h2>Agenda inmediata</h2>
+              </div>
+            </div>
+
+            @if (proximasReservas.length) {
+              <div class="upcoming-list">
+                @for (reserva of proximasReservas; track reserva.id) {
+                  <article class="reservation-row" [class.is-selected]="reservaSeleccionada?.id === reserva.id">
+                    <span class="status-dot" aria-hidden="true"></span>
+                    <div class="reservation-copy">
+                      <strong>{{ horaCorta(reserva.fecha_inicio) }} - {{ reserva.departamento }}</strong>
+                      <span>{{ reserva.nombre }}</span>
+                      <small>{{ reserva.motivo || 'Sin motivo registrado' }} - {{ fechaCorta(reserva.fecha_inicio) }}</small>
+                    </div>
+                    <ion-button size="small" fill="clear" color="danger" (click)="confirmarCancelacion(reserva)">
+                      Cancelar
+                    </ion-button>
+                  </article>
+                }
+              </div>
+            } @else {
+              <div class="empty-state">
+                <strong>Sin reservas proximas</strong>
+                <span>La sala esta disponible en la agenda inmediata.</span>
+              </div>
+            }
+          </article>
+        </aside>
+      </section>
+    </section>
+  </main>
+</ion-content>
