@@ -1,12 +1,18 @@
 {
   "name": "reserva_sala_junta",
-  "version": "0.0.1",
+  "version": "1.1.2",
   "author": "Ionic Framework",
   "homepage": "https://ionicframework.com/",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "cf:preview": "npm run build && wrangler dev",
+    "cf:deploy": "npm run build && wrangler deploy",
+    "cf:deploy:patch": "npm version patch --no-git-tag-version && npm run build && wrangler deploy",
+    "cf:whoami": "wrangler whoami",
+    "keepalive:dev": "wrangler dev -c wrangler.keepalive.jsonc --test-scheduled",
+    "keepalive:deploy": "wrangler deploy -c wrangler.keepalive.jsonc",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint"
@@ -64,7 +70,8 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
-    "typescript": "~5.9.0"
+    "typescript": "~5.9.0",
+    "wrangler": "^4.103.0"
   },
   "description": "An Ionic project"
 }

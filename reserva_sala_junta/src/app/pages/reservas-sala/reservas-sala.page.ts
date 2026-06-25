@@ -23,6 +23,7 @@ import {
 } from '@ionic/angular/standalone';
 
 import { ReservaSala, ReservasService } from '../../services/reservas.service';
+import packageInfo from '../../../../package.json';
 
 @Component({
   selector: 'app-reservas-sala',
@@ -57,6 +58,7 @@ export class ReservasSalaPage implements OnInit, OnDestroy {
   mensajeConexion = '';
   sincronizando = false;
   ultimaActualizacion: Date | null = null;
+  readonly appVersion = `V${packageInfo.version}`;
 
   readonly reservaForm = this.fb.nonNullable.group(
     {

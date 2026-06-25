@@ -1,0 +1,19 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "reservas-supabase-keepalive",
+  "account_id": "2aad1d0a3642e36145c08b5a17103dc7",
+  "main": "./src/workers/supabase-keepalive.ts",
+  "compatibility_date": "2026-06-22",
+  "triggers": {
+    "crons": [
+      "0 12 * * *"
+    ]
+  },
+  "vars": {
+    "SUPABASE_URL": "https://yfmgdwhxmbjdkjhramws.supabase.co",
+    "SUPABASE_ANON_KEY": "sb_publishable_4Vm9LAUXV4lZVEX6YbVSqg_ru_r7RGb"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "reservas-sala-juntas",
+  "account_id": "2aad1d0a3642e36145c08b5a17103dc7",
+  "compatibility_date": "2026-06-22",
+  "routes": [
+    {
+      "pattern": "reservas.corporates.cl",
+      "custom_domain": true
+    }
+  ],
+  "assets": {
+    "directory": "./www",
+    "not_found_handling": "single-page-application"
+  },
+  "observability": {
+    "enabled": true
+  }
+}
